@@ -108,6 +108,9 @@ def _matches(string, match):
         else:
             return False, None
 
+    if match is None:
+        return False, None
+
     assert isinstance(match, tuple), f'不支持的match类型{type(match)}'
     if len(match) == 1:
         return match1(string, match[0])
@@ -247,6 +250,8 @@ class TemplateBase:
     discard_tag_name = (['ref', 'table'],)
     # 对于自定义的所有字段，需要剔除的值，这些值往往无意义
     discard_fields_value = (re.compile(r'nama.*?amerika|nama.*?korea'),)
+    # 解析wiki对象text时需要剔除的值
+    discard_text_value = None
     # 对于自定义的所有字段，需要替换为空字符串的无意义的值
     replace_fields_value = re.compile(
         r'<\s*small\s*/*?\s*>|<\s*big\s*/*?\s*>|<\s*span\s*/*?\s*>|<\s*nowiki\s*/*?\s*>|<\s*div\s*/*?\s*>')
@@ -427,6 +432,7 @@ class TemplateBase:
             elif any([isinstance(j, k) for k in cls.dont_parse_type]):
                 p_t[i] = mwp.parse(None)
         if all([isinstance(ii, mwp.wikicode.Text) for ii in p_t]):
+            p_t = [t for t in p_t if not _matches(str(t).lower(), cls.discard_text_value)[0]]
             return p_t
         return cls.parse(p_t)
 
