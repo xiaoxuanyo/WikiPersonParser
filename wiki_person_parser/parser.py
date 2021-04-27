@@ -51,7 +51,7 @@ class WikiContentHandler(xml.sax.handler.ContentHandler, InfoField):
             else:
                 assert isinstance(skip_num, int), f'skip_num必须是int类型，不支持类型skip_num: {type(skip_num)}。'
                 split_tag = r'.{,%d}[:：].{,%d}' % (skip_num, skip_num)
-            self._filter_categories = ['' + category + split_tag + i for i in filter_categories]
+            self._filter_categories = [category + split_tag + i for i in filter_categories]
         else:
             self._filter_categories = None
 
@@ -100,6 +100,10 @@ class WikiContentHandler(xml.sax.handler.ContentHandler, InfoField):
         if self._current_tag:
             self._buffer += content
 
+    @classmethod
+    def get_wiki_types(cls):
+        return cls.__wiki_type_choice
+
 
 class XMLParser:
 
@@ -110,6 +114,10 @@ class XMLParser:
         self.parser.setFeature(xml.sax.handler.feature_namespaces, 0)
         self.parser.setContentHandler(self.handler)
         self._input_source = None
+
+    @property
+    def wiki_types(self):
+        return self.handler.get_wiki_types()
 
     def parse_file(self, xml_file):
         self.parser.parse(xml_file)
