@@ -251,10 +251,11 @@ class TemplateBase:
     # 对于自定义的所有字段，需要剔除的值，这些值往往无意义
     discard_fields_value = (re.compile(r'nama.*?amerika|nama.*?korea'),)
     # 解析wiki对象text时需要剔除的值
-    discard_text_value = None
+    discard_text_value = (re.compile(r'wikitable'),)
     # 对于自定义的所有字段，需要替换为空字符串的无意义的值
-    replace_fields_value = re.compile(
-        r'<\s*small\s*/*?\s*>|<\s*big\s*/*?\s*>|<\s*span\s*/*?\s*>|<\s*nowiki\s*/*?\s*>|<\s*div\s*/*?\s*>')
+    replace_fields_value = re.compile(r'<.*?small.*?>|<.*?big.*?>|<.*?span.*?>|<.*?nowiki.*?>|<.*?div.*?>', re.I)
+    # 解析wiki对象text需要替换的值
+    replace_text_value = replace_fields_value
 
     def __init__(self, values, entry):
         """
@@ -298,12 +299,12 @@ class TemplateBase:
                 p_v = self.parse(v.strip())
                 h_v = ''.join([str(i) for i in p_v]).strip()
                 if h_v:
-                    h_v = re.sub(self.replace_fields_value, '', h_v)
                     _console_log.logger.debug(f'\n{field}: {h_v}\n')
                     if index:
                         h_v = {index: h_v}
                         if h_v not in self._fields['fields'][field]['values'] and not \
                                 _matches(str(h_v).lower(), self.discard_fields_value)[0]:
+                            h_v[index] = re.sub(self.replace_fields_value, '', h_v[index])
                             self._fields['fields'][field]['values'].append(h_v)
                     else:
                         l_h_v = h_v.split('\n')
@@ -311,6 +312,7 @@ class TemplateBase:
                             h_v = h_v.strip()
                             if h_v and h_v not in self._fields['fields'][field]['values'] and not \
                                     _matches(str(h_v).lower(), self.discard_fields_value)[0]:
+                                h_v = re.sub(self.replace_fields_value, '', h_v)
                                 self._fields['fields'][field]['values'].append(h_v)
 
     def _process_multi_values_field(self, entry):
@@ -433,6 +435,8 @@ class TemplateBase:
                 p_t[i] = mwp.parse(None)
         if all([isinstance(ii, mwp.wikicode.Text) for ii in p_t]):
             p_t = [t for t in p_t if not _matches(str(t).lower(), cls.discard_text_value)[0]]
+            for vv in p_t:
+                vv.value = re.sub(cls.replace_text_value, '', str(vv))
             return p_t
         return cls.parse(p_t)
 
