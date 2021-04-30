@@ -87,21 +87,22 @@ class Corpus:
     @property
     @_raise_no_item_exception
     def entities(self):
+        # TODO 内部关系值不能以换行符\n切割，会有BUG，应以字段名切割
         multi_filed_keys = self.__get_multi_field_keys()
-        res = {}
+        _entities = {}
         for key, value in self._fields.items():
             if key in multi_filed_keys:
                 for inner_value in value['values']:
                     inner_res = inner_value.split('\n')
                     for inner in inner_res:
                         temp = inner.split(':')
-                        ll = res.get(f'{key}({temp[0].strip()})', [])
+                        ll = _entities.get(f'{key}({temp[0].strip()})', [])
                         if temp[1].strip() not in ll:
                             ll.append(temp[1].strip())
-                        res[f'{key}({temp[0].strip()})'] = ll
+                        _entities[f'{key}({temp[0].strip()})'] = ll
             else:
-                res[key] = value['values']
-        return res
+                _entities[key] = value['values']
+        return _entities
 
     @property
     @_raise_no_item_exception
@@ -132,13 +133,18 @@ if __name__ == '__main__':
 
     with open('./ms_person_data.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
+
+    idx = '657150'
+    res = Parser.parse_wiki_data(data[idx]['all text'], entry=data[idx]['title'])
     corpus = Corpus(max_paragraph_length=3)
-    corpus.set_item(Parser.parse_wiki_data(data['657138']['all text'], entry=data['657138']['title']))
+    corpus.set_item(res)
 
     sentences = corpus.sentences
     paragraphs = corpus.paragraphs
     print(len(sentences))
     print(len(paragraphs))
+    print(corpus.fields)
+    print(corpus.entities)
 
     # from difflib import SequenceMatcher
     # from strsimpy.normalized_levenshtein import NormalizedLevenshtein
