@@ -30,19 +30,17 @@ class Corpus:
                  entry_alias='Alias',
                  field_thr=0.85,
                  sentence_thr=0.7,
-                 max_sentence_length=520,
                  max_paragraph_length=3):
         assert 0 < field_thr <= 1 and 0 < sentence_thr <= 1, \
-            f'阈值必须处于(0, 1]之前，目前field_thr={field_thr}，sentence_thr={sentence_thr}'
+            f'阈值必须处于(0, 1]之前，当前field_thr={field_thr}，sentence_thr={sentence_thr}'
+        assert max_paragraph_length >= 1, f'段落包含的句子数必须在[1, +∞)，当前max_paragraph_length={max_paragraph_length}'
         self._item = None
         self._fields = None
         self._text = None
         self._title = None
-        self._alias = None
         self.entry_alias = entry_alias
         self.field_thr = field_thr
         self.sentence_thr = sentence_thr
-        self.max_sentence_length = max_sentence_length
         self.max_paragraph_length = max_paragraph_length
 
     def set_item(self, item):
@@ -50,8 +48,6 @@ class Corpus:
         self._text = item.get('string_text', '')
         self._fields = item.get('fields', {})
         self._title = item.get('entry', '')
-        self._alias = set(self._fields.get(self.entry_alias, {}).get('values', []))
-        self._alias.add(self._title)
 
     @property
     def item(self):
@@ -75,7 +71,9 @@ class Corpus:
     @property
     @_raise_no_item_exception
     def alias(self):
-        return self._alias
+        alias = set(self._fields.get(self.entry_alias, {}).get('values', []))
+        alias.add(self._title)
+        return alias
 
     def __get_multi_field_keys(self):
         keys = []
@@ -105,17 +103,37 @@ class Corpus:
                 res[key] = value['values']
         return res
 
+    @property
+    @_raise_no_item_exception
+    def sentences(self):
+        return [sent.strip() for sent in split_sentence(self._text) if sent.strip()]
+
+    @property
+    @_raise_no_item_exception
+    def paragraphs(self):
+        _paragraphs = []
+        _sentences = self.sentences
+        for oi in range(len(_sentences)):
+            _paragraph = _sentences[oi]
+            _paragraphs.append(_paragraph)
+            for ii in range(oi + 1, len(_sentences)):
+                _paragraph += _sentences[ii]
+                if ii - oi <= self.max_paragraph_length:
+                    _paragraphs.append(_paragraph)
+        return _paragraphs
+
 
 if __name__ == '__main__':
     import json
     from wiki_person_parser.utils import split_sentence
     from wiki_person_parser.parser import Parser
+
     with open('./ms_person_data.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     corpus = Corpus()
     corpus.set_item(Parser.parse_wiki_data(data['657138']['all text'], entry=data['657138']['title']))
 
-    sentences = [i.strip() for i in split_sentence(corpus.text) if i.strip()]
+    sentences = corpus.paragraphs
     for i in sentences:
         print('sentence', i)
     #
