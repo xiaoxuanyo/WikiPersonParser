@@ -118,8 +118,10 @@ class Corpus:
             _paragraphs.append(_paragraph)
             for ii in range(oi + 1, len(_sentences)):
                 _paragraph += _sentences[ii]
-                if ii - oi <= self.max_paragraph_length:
+                if ii - oi + 1 <= self.max_paragraph_length:
                     _paragraphs.append(_paragraph)
+                else:
+                    break
         return _paragraphs
 
 
@@ -130,13 +132,14 @@ if __name__ == '__main__':
 
     with open('./ms_person_data.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
-    corpus = Corpus()
+    corpus = Corpus(max_paragraph_length=3)
     corpus.set_item(Parser.parse_wiki_data(data['657138']['all text'], entry=data['657138']['title']))
 
-    sentences = corpus.paragraphs
-    for i in sentences:
-        print('sentence', i)
-    #
+    sentences = corpus.sentences
+    paragraphs = corpus.paragraphs
+    print(len(sentences))
+    print(len(paragraphs))
+
     # from difflib import SequenceMatcher
     # from strsimpy.normalized_levenshtein import NormalizedLevenshtein
     #
