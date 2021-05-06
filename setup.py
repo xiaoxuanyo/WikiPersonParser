@@ -10,7 +10,7 @@ setup(
     description='Automatically parse the character data on Wikipedia and generate high-quality triples',
     author='xiexx',
     author_email='xiaoxuanemail@163.com',
-    install_requires=['tqdm', 'mwparserfromhell', 'pywikibot', 'strsimpy'],
+    install_requires=['tqdm', 'mwparserfromhell', 'pywikibot', 'jieba'],
     packages=find_packages(),
     license='MIT Licence',
     url='https://github.com/xiaoxuanyo/WikiPersonParser'

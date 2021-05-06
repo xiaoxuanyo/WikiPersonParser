@@ -201,15 +201,17 @@ class TemplateF1Driver(TemplateBase):
         'Podiums': ({'zh': '领奖台次数'}, re_compile(r'podiums?')),
         'Points': ({'zh': '点/分'}, re_compile(r'points?')),
         'Last Position': ({'zh': '最后位置'}, re_compile(r'last.*?position')),
-        'Best Finish': ({'zh': '最好战绩'}, re_compile('best.*?finish')),
+        '_Best Finish': ({'zh': '最好战绩'}, re_compile('best.*?finish')),
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Teams': ({'zh': '团队/队伍'}, ['_Teams', '_Car Number', '_Years'])
+        'Teams': ({'zh': '团队/队伍'}, ['_Teams', '_Car Number', '_Years']),
+        'Best Finish': ({'zh': '最好战绩'}, ['_Best Finish'])
     }
     multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {
-        'Teams': ['_Teams']
+        'Teams': ['_Teams'],
+        'Best Finish': ['_Best Finish']
     }
     multi_field_cond.update(TemplateBase.multi_field_cond)
 

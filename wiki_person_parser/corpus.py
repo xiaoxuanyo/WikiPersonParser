@@ -6,6 +6,7 @@
 import re
 from wiki_person_parser.utils import split_sentence
 from difflib import SequenceMatcher
+import jieba
 
 
 class NoItemException(Exception):
@@ -48,11 +49,13 @@ class Corpus:
                  entry_alias='Alias',
                  field_thr=0.7,
                  sentence_thr=0.7,
-                 match_char_ratio=0.7,
+                 match_ratio=0.7,
+                 match_type='char',
                  max_paragraph_length=3):
-        assert 0 < field_thr <= 1 and 0 < sentence_thr <= 1 and 0 < match_char_ratio <= 1, \
-            f'阈值必须处于(0, 1]之前，当前field_thr={field_thr}，sentence_thr={sentence_thr}, match_char_ratio={match_char_ratio}'
+        assert 0 < field_thr <= 1 and 0 < sentence_thr <= 1 and 0 < match_ratio <= 1, \
+            f'阈值必须处于(0, 1]之前，当前field_thr={field_thr}，sentence_thr={sentence_thr}, match_char_ratio={match_ratio}'
         assert max_paragraph_length >= 1, f'段落包含的句子数必须在[1, +∞)，当前max_paragraph_length={max_paragraph_length}'
+        assert match_type in ['char', 'word'], f'匹配类型为字符或词类型，当前match_type={match_type}'
         self._item = None
         self._fields = None
         self._text = None
@@ -61,7 +64,8 @@ class Corpus:
         self.field_thr = field_thr
         self.sentence_thr = sentence_thr
         self.max_paragraph_length = max_paragraph_length
-        self.match_char_ratio = match_char_ratio
+        self.match_ratio = match_ratio
+        self.match_type = match_type
 
     def set_item(self, item):
         self._item = item
@@ -105,7 +109,8 @@ class Corpus:
             p = re.sub(r'_', '', s[1]).lower().strip()
             p = r'\n(%s)' % _format('%%%'.join([j.strip() for j in p.split(',') if j.strip()])[1:-1]).replace('%%%',
                                                                                                               '|')
-            keys[s[0]] = p
+            if len(p) >= len(keys.get(s[0], '')):
+                keys[s[0]] = p
         return keys
 
     @property
@@ -151,16 +156,25 @@ class Corpus:
                     break
         return _paragraphs
 
-    def _get_match_char(self, value):
-        match_char_length = int(len(value) * self.match_char_ratio)
+    def _get_match_char(self, value, ignore_space=True):
+        if self.match_type == 'word':
+            value = jieba.lcut(value)
+        match_length = int(len(value) * self.match_ratio)
         _values = set()
         for oi in range(len(value)):
+            _v_length = 0
             _chars = value[oi]
-            if match_char_length <= 1:
+            if value[oi].strip():
+                _v_length += 1
+            v_length = _v_length if ignore_space else 1
+            if match_length <= v_length:
                 _values.add(_format(_chars))
             for ii in range(oi + 1, len(value)):
                 _chars += value[ii]
-                if ii - oi + 1 >= match_char_length:
+                if value[ii].strip():
+                    _v_length += 1
+                v_length = _v_length if ignore_space else ii - oi + 1
+                if v_length >= match_length:
                     _values.add(_format(_chars))
                     break
         return _values
@@ -172,24 +186,26 @@ class Corpus:
         return ''
 
     @_raise_no_item_exception
-    def corpus(self, top_k=1):
+    def corpus(self, top_k=1, ignore_space=True):
         _corpus = {'title': self._title,
                    'sentences': []}
         alia_pattern = set()
         for alia in self.alias:
-            alia_pattern.update(self._get_match_char(alia))
+            alia_pattern.update(self._get_match_char(alia, ignore_space))
         alia_pattern = rf"({'|'.join(alia_pattern)})"
         for key, value in self.entities.items():
             for inner_value in value:
                 for sentence in self.paragraphs:
-                    field_pattern = rf"({'|'.join(self._get_match_char(inner_value))})"
+                    field_pattern = rf"({'|'.join(self._get_match_char(inner_value, ignore_space))})"
                     pattern = rf"{alia_pattern}.*?{field_pattern}|{field_pattern}.*?{alia_pattern}"
                     result = re.search(pattern, sentence, flags=re.I)
                     if result:
                         score = SequenceMatcher(lambda x: x == ' ', sentence, result.group(0)).quick_ratio()
                         if score >= self.sentence_thr:
                             alia = result.group(1) if result.group(1) else result.group(4)
+                            alia = alia if alia else ''
                             field = result.group(2) if result.group(2) else result.group(3)
+                            field = field if field else ''
                             _alia = self._get_alia_value(alia)
                             score1 = SequenceMatcher(lambda x: x == ' ', alia, _alia).quick_ratio()
                             score2 = SequenceMatcher(lambda x: x == ' ', field, inner_value).quick_ratio()
@@ -220,16 +236,19 @@ if __name__ == '__main__':
 
     with open('./ms_person_data.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
+    corpus = Corpus(max_paragraph_length=3, field_thr=0.8, sentence_thr=0.8, match_ratio=0.8)
+    w_corpus = Corpus(max_paragraph_length=3, field_thr=0.6, sentence_thr=0.6, match_ratio=0.6, match_type='word')
 
-    corpus = Corpus(max_paragraph_length=3, field_thr=0.8, sentence_thr=0.8, match_char_ratio=0.8)
     for values in data.values():
         res = Parser.parse_wiki_data(values['all text'], entry=values['title'])
         corpus.set_item(res)
-        print(corpus.sentences, '\n----------------------------------------------------')
-        print(corpus.entities, '\n----------------------------------------------------')
-        print(corpus.corpus(), '\n\n')
+        w_corpus.set_item(res)
+        print('------fields------\n', corpus.entities, '\n------end------\n')
+        print('------char match------\n', corpus.corpus(), '\n------end------\n')
+        print('------word match------\n', w_corpus.corpus(), '\n------end------\n\n\n')
 
-    # idx = '56194'
+    # idx = '658018'
     # res = Parser.parse_wiki_data(data[idx]['all text'], entry=data[idx]['title'])
     # corpus.set_item(res)
-    # print(corpus.entities)
+    # print(corpus.entities, '\n')
+    # print(corpus.corpus())

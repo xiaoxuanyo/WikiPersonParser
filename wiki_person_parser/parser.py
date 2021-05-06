@@ -189,8 +189,9 @@ class Parser(InfoField):
                 fields['template_name'].append(res.template_name)
             fields['fields'] = res.fields['fields']
             if res.fields.get('primary_entity_props'):
-                if res.fields['primary_entity_props']['multi_values_field'] not in _props:
-                    _props.append(res.fields['primary_entity_props']['multi_values_field'])
+                for i_s in res.fields['primary_entity_props']['multi_values_field'].split('\n'):
+                    if i_s not in _props:
+                        _props.append(i_s)
             for t in temp:
                 values = {str(p.name).strip(): str(p.value) for p in t.params if str(p.value)}
                 template = cls.map_template.get(
