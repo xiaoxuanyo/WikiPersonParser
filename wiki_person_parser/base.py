@@ -229,12 +229,15 @@ class TemplateBase:
     multi_values_field = {
         'Birth': ({'zh': '出生信息'}, ['_Birth Date', '_Birth Place', '_Birth City', '_Birth Country', '_Birth']),
         'Death': ({'zh': '死亡信息'}, ['_Death Date', '_Death Place', '_Burial Place', '_Death', '_Death Cause']),
+        'Awards': ({'zh': '奖项'}, ['Awards', '_Years'])
         # 'Relatives': (
         #     {'zh': '关系'},
         #     ['_Parents', '_Sibling', '_Relatives', '_Family'])
     }
     # 多值字段中必须出现的字段，若没有出现，则认为这个多值字段没有意义
-    multi_field_cond = None
+    multi_field_cond = {
+        'Awards': ['Awards']
+    }
     # 在解析时跳过的类型
     dont_parse_type = [mwp.wikicode.Argument, mwp.wikicode.Comment]
     # 解析wiki对象template时需要保存的模板名，通常情况下是因为模板名保存了必要的信息，比如某次比赛中的名次（金牌、银牌等）保存在模板名中
@@ -546,6 +549,7 @@ class TemplateSportsPlayer(TemplateBase):
                         'National Team': ['_National Team'],
                         'Youth Clubs': ['_Youth Clubs'],
                         'Manager Clubs': ['_Manager Clubs']}
+    multi_field_cond.update(TemplateBase.multi_field_cond)
 
 
 class TemplatePerformanceWorker(TemplateBase):
@@ -598,3 +602,4 @@ class TemplateResearchers(TemplateBase):
     multi_field_cond = {
         'Thesis': ['_Thesis Title']
     }
+    multi_field_cond.update(TemplateBase.multi_field_cond)

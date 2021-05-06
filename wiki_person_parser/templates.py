@@ -155,6 +155,7 @@ class TemplateFootballOfficial(TemplateBase):
         'League': ['_League'],
         'International League': ['_International League']
     }
+    multi_field_cond.update(TemplateBase.multi_field_cond)
 
 
 class TemplateGolfer(TemplateBase):
@@ -166,13 +167,6 @@ class TemplateGolfer(TemplateBase):
         'Wins': ({'zh': '获胜次数'}, re_compile(r'wins?', mode='e')),
     }
     fields_map.update(TemplateBase.fields_map)
-    multi_values_field = {
-        'Awards': ({'zh': '奖项'}, ['Awards', '_Years'])
-    }
-    multi_values_field.update(TemplateBase.multi_values_field)
-    multi_field_cond = {
-        'Awards': ['Awards']
-    }
 
 
 class TemplateBoxer(TemplateBase):
@@ -217,6 +211,7 @@ class TemplateF1Driver(TemplateBase):
     multi_field_cond = {
         'Teams': ['_Teams']
     }
+    multi_field_cond.update(TemplateBase.multi_field_cond)
 
 
 class TemplateVideoGamePlayer(TemplateBase):
@@ -239,6 +234,7 @@ class TemplateVideoGamePlayer(TemplateBase):
         'Teams': ['_Teams'],
         'Coach Teams': ['_Coach Teams']
     }
+    multi_field_cond.update(TemplateBase.multi_field_cond)
 
 
 class TemplateArtist(TemplateBase):
@@ -336,6 +332,7 @@ class TemplateCyclist(TemplateBase):
     multi_field_cond = {
         'Pro Team': ['_Pro Team']
     }
+    multi_field_cond.update(TemplateBase.multi_field_cond)
 
 
 class TemplateIceHockeyPlayer(TemplateBase):
@@ -423,6 +420,7 @@ class TemplateBasketballBiography(TemplateBase):
         'Teams': ['_Teams'],
         'Coach Teams': ['_Coach Teams']
     }
+    multi_field_cond.update(TemplateBase.multi_field_cond)
 
 
 class TemplateReligiousBiography(TemplateBase):
@@ -462,15 +460,15 @@ class TemplateRacingDriver(TemplateBase):
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
         'Best Finish': ({'zh': '最好战绩'}, ['_Year', '_Best Finish']),
-        'Awards': ({'zh': '奖项'}, ['Awards', '_Years']),
         'Titles': ({'zh': '冠军'}, ['_Titles', '_Title Years']),
         'Prev Series': ({'zh': '以前系列'}, ['_Prev Series Years', '_Prev Series'])
     }
     multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {
-        'Awards': ['Awards'],
-        'Best Finish': ['_Best Finish']
+        'Best Finish': ['_Best Finish'],
+        'Titles': ['_Titles']
     }
+    multi_field_cond.update(TemplateBase.multi_field_cond)
 
 
 class TemplateRoyalty(TemplateOfficer):
@@ -628,9 +626,17 @@ class TemplateBadmintonPlayer(TemplateSportsPlayer):
             {'zh': '目前排名日期'}, re_compile(r'date.*?current.*?ranking|current.*?ranking.*?date')),
         'Date Of Highest Ranking': (
             {'zh': '最高排名日期'}, re_compile(r'highest.*?ranking.*?date|date.*?highest.*?ranking')),
-        'Titles': ({'zh': '冠军'}, ['titles']),
+        '_Titles': ({'zh': '冠军'}, ['titles']),
     }
     fields_map.update(TemplateSportsPlayer.fields_map)
+    multi_values_field = {
+        'Titles': ({'zh': '冠军'}, ['_Titles', '_Title Years']),
+    }
+    multi_values_field.update(TemplateBase.multi_values_field)
+    multi_field_cond = {
+        'Titles': ['_Titles']
+    }
+    multi_field_cond.update(TemplateBase.multi_field_cond)
 
 
 class TemplateSquashPlayer(TemplateSportsPlayer):
@@ -642,11 +648,19 @@ class TemplateSquashPlayer(TemplateSportsPlayer):
             {'zh': '最高排名日期'}, re_compile(r'highest.*?ranking.*?date|date.*?highest.*?ranking')),
         'Racquet': ({'zh': '球拍'}, ['racquet']),
         'Finals': ({'zh': '决赛'}, ['finals', 'final']),
-        'Titles': ({'zh': '冠军'}, ['titles']),
+        '_Titles': ({'zh': '冠军'}, ['titles']),
         'Highest Ranking': ({'zh': '最高排名'}, re_compile(r'highest.*?ranking')),
         'Current Ranking': ({'zh': '目前排名'}, re_compile(r'current.*?ranking')),
     }
     fields_map.update(TemplateSportsPlayer.fields_map)
+    multi_values_field = {
+        'Titles': ({'zh': '冠军'}, ['_Titles', '_Title Years']),
+    }
+    multi_values_field.update(TemplateBase.multi_values_field)
+    multi_field_cond = {
+        'Titles': ['_Titles']
+    }
+    multi_field_cond.update(TemplateBase.multi_field_cond)
 
 
 class TemplateSportPerson(TemplateSportsPlayer):
@@ -757,9 +771,9 @@ class TemplateDefine:
             res = temp(values, entry)
             for k, v in res.fields['fields'].items():
                 if self._fields['fields'].get(k):
-                    for li in v:
-                        if li not in self._fields['fields'][k]:
-                            self._fields['fields'][k].append(li)
+                    for li in v['values']:
+                        if li not in self._fields['fields'][k]['values']:
+                            self._fields['fields'][k]['values'].append(li)
                 else:
                     self._fields['fields'][k] = v
             if res.fields.get('primary_entity_props'):
