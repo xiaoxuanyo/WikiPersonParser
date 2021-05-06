@@ -8,7 +8,7 @@ from wiki_person_parser.utils import split_sentence
 from difflib import SequenceMatcher
 
 
-class NoDataException(Exception):
+class NoItemException(Exception):
 
     def __init__(self, msg):
         self.msg = msg
@@ -20,7 +20,7 @@ class NoDataException(Exception):
 def _raise_no_item_exception(func):
     def wrap(instance, *args, **kwargs):
         if instance.item is None:
-            raise NoDataException('the item is None, please set the item.')
+            raise NoItemException('the item is None, please set the item.')
         return func(instance, *args, **kwargs)
 
     return wrap
