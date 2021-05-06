@@ -102,8 +102,9 @@ class Corpus:
             return keys
         for i in string.split('\n'):
             s = i.split(':')
-            p = re.sub(r'[()_]', '', s[1]).lower().strip()
-            p = r'\n(%s)' % '|'.join([j.strip() for j in p.split(',') if j.strip()])
+            p = re.sub(r'_', '', s[1]).lower().strip()
+            p = r'\n(%s)' % _format('%%%'.join([j.strip() for j in p.split(',') if j.strip()])[1:-1]).replace('%%%',
+                                                                                                              '|')
             keys[s[0]] = p
         return keys
 
@@ -224,4 +225,11 @@ if __name__ == '__main__':
     for values in data.values():
         res = Parser.parse_wiki_data(values['all text'], entry=values['title'])
         corpus.set_item(res)
-        print(corpus.corpus(), '\n')
+        print(corpus.sentences, '\n----------------------------------------------------')
+        print(corpus.entities, '\n----------------------------------------------------')
+        print(corpus.corpus(), '\n\n')
+
+    # idx = '56194'
+    # res = Parser.parse_wiki_data(data[idx]['all text'], entry=data[idx]['title'])
+    # corpus.set_item(res)
+    # print(corpus.entities)

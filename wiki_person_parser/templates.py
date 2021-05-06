@@ -221,16 +221,18 @@ class TemplateVideoGamePlayer(TemplateBase):
         '_Teams': ({'zh': '团队'}, re_compile(r'teams?')),
         '_Coach Years': ({'zh': '教练年份'}, re_compile(r'cyears?')),
         '_Coach Teams': ({'zh': '教练团队'}, re_compile(r'cteams?')),
-        'League': ({'zh': '联盟'}, re_compile(r'leagues?')),
+        '_League': ({'zh': '联盟'}, re_compile(r'leagues?')),
         'Games': ({'zh': '游戏'}, re_compile(r'games?'))
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
+        'League': ({'zh': '联盟'}, ['_League']),
         'Teams': ({'zh': '团队/队伍'}, ['_Teams', '_Years']),
         'Coach Teams': ({'zh': '教练团队/队伍'}, ['_Coach Teams', '_Coach Years'])
     }
     multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {
+        'League': ['_League'],
         'Teams': ['_Teams'],
         'Coach Teams': ['_Coach Teams']
     }
@@ -338,11 +340,11 @@ class TemplateCyclist(TemplateBase):
 class TemplateIceHockeyPlayer(TemplateBase):
     template_name = 'Ice Hockey Player'
     fields_map = {
-        'League': ({'zh': '联盟'}, re_compile(r'leagues?'),),
+        '_League': ({'zh': '联盟'}, re_compile(r'leagues?'),),
         '_Height(in)': ({'zh': '身高(英寸)'}, re_compile(r'height.*?in')),
         '_Height(ft)': ({'zh': '身高(英尺)'}, re_compile(r'height.*?ft')),
         'Draft Team': ({'zh': '选秀队'}, re_compile(r'draft.*?team')),
-        'Teams': ({'zh': '团队/队伍'}, re_compile(r'teams?')),
+        '_Teams': ({'zh': '团队/队伍'}, re_compile(r'teams?')),
         'Position': ({'zh': '运动员定位'}, ['position'],),
         'Draft Year': ({'zh': '选秀年份'}, re_compile(r'draft.*?year')),
         'Career Start': ({'zh': '职业生涯开始'}, re_compile(r'career.*?start')),
@@ -351,10 +353,17 @@ class TemplateIceHockeyPlayer(TemplateBase):
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
+        'Teams': ({'zh': '团队/队伍'}, ['_Teams']),
+        'League': ({'zh': '联盟'}, ['_League']),
         'Height': ({'zh': '身高'}, ['_Height(in)', '_Height(ft)']),
         'Weight': ({'zh': '体重'}, ['_Weight(lb)'])
     }
     multi_values_field.update(TemplateBase.multi_values_field)
+    multi_field_cond = {
+        'Teams': ['_Teams'],
+        'League': ['_League']
+    }
+    multi_field_cond.update(TemplateBase.multi_field_cond)
 
 
 class TemplateWriter(TemplateBase):
@@ -454,17 +463,19 @@ class TemplateRacingDriver(TemplateBase):
         'Car Number': ({'zh': '车号'}, re_compile(r'car.*?number')),
         'Current Team': ({'zh': '目前团队'}, re_compile(r'current.*?team'),),
         'Current Series': ({'zh': '目前系列'}, re_compile(r'current.*?series?')),
-        'Teams': ({'zh': '团队/队伍'}, re_compile(r'teams?')),
+        '_Teams': ({'zh': '团队/队伍'}, re_compile(r'teams?')),
         'Former Teams': ({'zh': '著名团队/队伍'}, re_compile(r'former.*?teams?'))
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
+        'Teams': ({'zh': '团队/队伍'}, ['_Teams']),
         'Best Finish': ({'zh': '最好战绩'}, ['_Year', '_Best Finish']),
         'Titles': ({'zh': '冠军'}, ['_Titles', '_Title Years']),
         'Prev Series': ({'zh': '以前系列'}, ['_Prev Series Years', '_Prev Series'])
     }
     multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {
+        'Teams': ['_Teams'],
         'Best Finish': ['_Best Finish'],
         'Titles': ['_Titles']
     }
@@ -666,11 +677,19 @@ class TemplateSquashPlayer(TemplateSportsPlayer):
 class TemplateSportPerson(TemplateSportsPlayer):
     template_name = 'Sport Person'
     fields_map = {
-        'Teams': ({'zh': '团队/队伍'}, re_compile(r'teams?')),
+        '_Teams': ({'zh': '团队/队伍'}, re_compile(r'teams?')),
         'College Team': ({'zh': '大学团队'}, re_compile(r'college.*?teams?')),
         'Training': ({'zh': '训练/培训'}, ['training']),
     }
     fields_map.update(TemplateSportsPlayer.fields_map)
+    multi_values_field = {
+        'Teams': ({'zh': '团队/队伍'}, ['_Teams'])
+    }
+    multi_values_field.update(TemplateBase.multi_values_field)
+    multi_field_cond = {
+        'Teams': ['_Teams']
+    }
+    multi_field_cond.update(TemplateBase.multi_field_cond)
 
 
 class TemplateHandballPlayer(TemplateSportsPlayer):
