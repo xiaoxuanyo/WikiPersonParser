@@ -27,7 +27,19 @@ def _raise_no_item_exception(func):
 
 
 def _format(value: str):
-    return value.replace('(', r'\(').replace(')', r'\)').replace('[', r'\[').replace(']', r'\]')
+    return value.replace(
+        '\\', r'\\').replace(
+        '(', r'\(').replace(
+        ')', r'\)').replace(
+        '[', r'\[').replace(
+        ']', r'\]').replace(
+        '.', r'\.').replace(
+        '?', r'\?').replace(
+        '*', r'\*').replace(
+        '^', r'\^').replace(
+        '$', r'\$').replace(
+        '+', r'\+').replace(
+        '|', r'\|')
 
 
 class Corpus:
@@ -144,11 +156,11 @@ class Corpus:
         for oi in range(len(value)):
             _chars = value[oi]
             if match_char_length <= 1:
-                _values.add(_chars)
+                _values.add(_format(_chars))
             for ii in range(oi + 1, len(value)):
                 _chars += value[ii]
                 if ii - oi + 1 >= match_char_length:
-                    _values.add(_chars)
+                    _values.add(_format(_chars))
                     break
         return _values
 
@@ -165,11 +177,11 @@ class Corpus:
         alia_pattern = set()
         for alia in self.alias:
             alia_pattern.update(self._get_match_char(alia))
-        alia_pattern = rf"({_format('|'.join(alia_pattern))})"
+        alia_pattern = rf"({'|'.join(alia_pattern)})"
         for key, value in self.entities.items():
             for inner_value in value:
                 for sentence in self.paragraphs:
-                    field_pattern = rf"({_format('|'.join(self._get_match_char(inner_value)))})"
+                    field_pattern = rf"({'|'.join(self._get_match_char(inner_value))})"
                     pattern = rf"{alia_pattern}.*?{field_pattern}|{field_pattern}.*?{alia_pattern}"
                     result = re.search(pattern, sentence, flags=re.I)
                     if result:
@@ -208,7 +220,7 @@ if __name__ == '__main__':
     with open('./ms_person_data.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    corpus = Corpus(max_paragraph_length=3, field_thr=0.7, sentence_thr=0.7, match_char_ratio=0.7)
+    corpus = Corpus(max_paragraph_length=3, field_thr=0.8, sentence_thr=0.8, match_char_ratio=0.8)
     for values in data.values():
         res = Parser.parse_wiki_data(values['all text'], entry=values['title'])
         corpus.set_item(res)
