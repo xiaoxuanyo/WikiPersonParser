@@ -385,7 +385,6 @@ class NewParser(Parser):
 #### 在获取三元组数据后，可以利用三元组和纯文本作相似度计算获得格式为（句子，实体一，实体二，关系）的语料，可以根据相似度阈值作筛选或过滤
 ```python
 from wiki_person_parser import Corpus, Parser
-import json
 
 string = """
 {all text类型数据}
@@ -400,86 +399,212 @@ res = Parser.parse_wiki_data(string, entry='Salvador Sobral')
 char_corpus.set_item(res)
 all_word_corpus.set_item(res)
 part_word_corpus.set_item(res)
-print('------fields------\n', char_corpus.entities, '\n------end------\n')
-print('------char match------\n', json.dumps(char_corpus.corpus(), ensure_ascii=False, indent=3), '\n------end------\n')
-print('------part word match------\n', json.dumps(part_word_corpus.corpus(), ensure_ascii=False, indent=3),
-      '\n------end------\n')
-print('------all word match------\n', json.dumps(all_word_corpus.corpus(), ensure_ascii=False, indent=3),
-      '\n------end------\n\n\n')
+print('------fields------\n', char_corpus.json_entities, '\n------end------\n')
+print('------char match------\n', char_corpus.corpus(), '\n------end------\n')
+print('------part word match------\n', part_word_corpus.corpus(), '\n------end------\n')
+print('------all word match------\n', all_word_corpus.corpus(), '\n------end------\n\n\n')
 ```
 #### 其结果如下所示
 - fields
 ```json
 {
-   "Genre": [
-      "Muzik alternatif, soul, jazz"
-   ],
-   "Label": [
-      "Valentim de Carvalho"
-   ],
-   "Instruments": [
-      "Vokal, piano"
-   ],
-   "Associated Acts": [
-      "Noko Woi, Luísa Sobral, Alexander Search (band)"
-   ],
    "Name": [
-      "Salvador Sobral",
-      "Order of Merit (Portugal)"
+      "Putera Naruhiko Higashikuni"
    ],
    "Alias": [
-      "Salvador Vilar Braamcamp Sobral"
+      "東久邇宮稔彦王"
    ],
    "Occupation": [
-      "Penyanyi"
+      "Kerabat F\\Diraja Jepun",
+      "General"
    ],
-   "Years Active": [
-      "2009–kini"
+   "Spouse": [
+      "Toshiko Higashikuni"
+   ],
+   "Alma Mater": [
+      "Akademi Tentera Empayar Imperial Jepun",
+      "Maktab Perang Tentera Jepun",
+      "Akademi Tentera Darat Empayar Imperial Jepun"
+   ],
+   "Father": [
+      "Asahiko, Putera Kuni"
+   ],
+   "Mother": [
+      "Terao Utako"
+   ],
+   "Honorific Prefix": [
+      "Jeneral"
+   ],
+   "Party": [
+      "Bebas"
    ],
    "Birth(birth date)": [
-      "1989, 12, 28"
+      "1887, 12, 3"
    ],
    "Birth(birth place)": [
-      "Lisbon, Portugal"
+      "Kyoto, Empayar Jepun"
+   ],
+   "Death(death date)": [
+      "1990, 1, 20, 1887, 12, 3"
+   ],
+   "Death(death place)": [
+      "Tokyo, Jepun"
+   ],
+   "Office(reign)": [
+      "17 Ogos 1945 – 9 Oktober 1945"
+   ],
+   "Office(successor)": [
+      "Kijūrō Shidehara"
+   ],
+   "Office(predecessor)": [
+      "Kantarō Suzuki"
+   ],
+   "Office(succession)": [
+      "Perdana Menteri Jepun ke-43"
+   ],
+   "Office(regent)": [
+      "Hirohito"
+   ],
+   "Office(office)": [
+      "Divisyen Tentera Darat Jepun ke-4, Perkhidmatan Udara Tentera Darat Imperial Jepun, Tentera Darat Jepun ke-2, General Defense Command"
+   ],
+   "Awards(awards)": [
+      "Order of the Chrysanthemum",
+      "Order of the Rising Sun berbunga Paulownia, Order of the Golden Kite"
+   ],
+   "Allegiance": [
+      "Empayar Jepun"
+   ],
+   "Service Years": [
+      "1908–1945"
+   ],
+   "Rank": [
+      "Jeneral"
+   ],
+   "Branch": [
+      "Tentera Darat Imperial Jepun"
+   ],
+   "Battles": [
+      "Perang China-Jepun Kedua",
+      "Perang Pasifik"
    ]
 } 
 ```
 - char match
 ```json
 {
-   "title": "Salvador Sobral",
-   "sentences": {}
+   "title": "Putera Naruhiko Higashikuni",
+   "sentences": {
+      "Name": [
+         {
+            "sentence": "Jeneral Putera Naruhiko Higashikuni, 東久邇宮稔彦王, Higashikuni-no-miya Naruhiko Ō, 3 Disember 1887 – 20 Januari 1990ialah seorang putera Empayar Jepun yang berkhidmat sebagai seorang pegawai dalam Tentera Darat Imperial Jepun dan ke-43 Perdana Menteri Jepun dari 17 Ogos 1945 sehinggalah 9 oktober pada tahun yang sama dengan tempoh selama 54 hari.Ayahanda ipar Maharaja Hirohitoini merupakan Higashikuni adalah satu-satunya ahli kerabat diraja Jepun yang pernah mengetuai kabinet serta jeneral pegawai Tentera Darat Jepun terkabir yang memegang jawatan Perdana Menteri.",
+            "alia": "東久邇宮稔彦王",
+            "value": "Putera Naruhiko Higashikuni",
+            "field": "Name",
+            "alia_score": 0.8333333333333334,
+            "value_score": 0.92,
+            "sentence_score": 0.9928698752228164,
+            "match_alia": "東久邇宮稔",
+            "match_value": "Putera Naruhiko Higashi"
+         }
+      ],
+      "Occupation": [
+         {
+            "sentence": "Jeneral Putera Naruhiko Higashikuni, 東久邇宮稔彦王, Higashikuni-no-miya Naruhiko Ō, 3 Disember 1887 – 20 Januari 1990ialah seorang putera Empayar Jepun yang berkhidmat sebagai seorang pegawai dalam Tentera Darat Imperial Jepun dan ke-43 Perdana Menteri Jepun dari 17 Ogos 1945 sehinggalah 9 oktober pada tahun yang sama dengan tempoh selama 54 hari.",
+            "alia": "Putera Naruhiko Higashikuni",
+            "value": "General",
+            "field": "Occupation",
+            "alia_score": 0.92,
+            "value_score": 0.8333333333333334,
+            "sentence_score": 0.9985401459854014,
+            "match_alia": "Putera Naruhiko Higashi",
+            "match_value": "enera"
+         }
+      ],
+      "Spouse": [
+         {
+            "sentence": "Jeneral Putera Naruhiko Higashikuni, 東久邇宮稔彦王, Higashikuni-no-miya Naruhiko Ō, 3 Disember 1887 – 20 Januari 1990ialah seorang putera Empayar Jepun yang berkhidmat sebagai seorang pegawai dalam Tentera Darat Imperial Jepun dan ke-43 Perdana Menteri Jepun dari 17 Ogos 1945 sehinggalah 9 oktober pada tahun yang sama dengan tempoh selama 54 hari.Ayahanda ipar Maharaja Hirohitoini merupakan Higashikuni adalah satu-satunya ahli kerabat diraja Jepun yang pernah mengetuai kabinet serta jeneral pegawai Tentera Darat Jepun terkabir yang memegang jawatan Perdana Menteri.",
+            "alia": "東久邇宮稔彦王",
+            "value": "Toshiko Higashikuni",
+            "field": "Spouse",
+            "alia_score": 0.8333333333333334,
+            "value_score": 0.9142857142857143,
+            "sentence_score": 0.9828982898289829,
+            "match_alia": "東久邇宮稔",
+            "match_value": "hiko Higashikuni"
+         }
+      ],
+      "Honorific Prefix": [
+         {
+            "sentence": "Jeneral Putera Naruhiko Higashikuni, 東久邇宮稔彦王, Higashikuni-no-miya Naruhiko Ō, 3 Disember 1887 – 20 Januari 1990",
+            "alia": "Putera Naruhiko Higashikuni",
+            "value": "Jeneral",
+            "field": "Honorific Prefix",
+            "alia_score": 0.92,
+            "value_score": 0.8333333333333334,
+            "sentence_score": 1.0,
+            "match_alia": "Putera Naruhiko Higashi",
+            "match_value": "Jener"
+         }
+      ],
+      "Rank": [
+         {
+            "sentence": "Jeneral Putera Naruhiko Higashikuni, 東久邇宮稔彦王, Higashikuni-no-miya Naruhiko Ō, 3 Disember 1887 – 20 Januari 1990",
+            "alia": "Putera Naruhiko Higashikuni",
+            "value": "Jeneral",
+            "field": "Rank",
+            "alia_score": 0.92,
+            "value_score": 0.8333333333333334,
+            "sentence_score": 1.0,
+            "match_alia": "Putera Naruhiko Higashi",
+            "match_value": "Jener"
+         }
+      ]
+   }
 } 
 ```
 - part word match
 ```json
 {
-   "title": "Salvador Sobral",
+   "title": "Putera Naruhiko Higashikuni",
    "sentences": {
-      "Alias": [
+      "Name": [
          {
-            "sentence": "Salvador Vilar Braamcamp Sobral Ordem do Mérito (Portugal) [|saɫvɐˈðoɾ viˈlaɾ bɾɐ̃ˈkɐ̃p suˈβɾaɫ], lahir 28 Disember 1989) ialah seorang penyanyi lelaki Portugal.Beliau meraih kemenangan negara tersebut yang pertama malah yang tertinggi (sebanyak 758 mata dari juri dan penonton) dalam acara Pertandingan Lagu Eurovision 2017 yang diadakan di Kiev dengan lagu \"Amar pelos dois\" gubahan Luísa Sobral, kakaknya.",
-            "alia": "Salvador Sobral",
-            "value": "Salvador Vilar Braamcamp Sobral",
-            "field": "Alias",
-            "alia_score": 0.6363636363636364,
+            "sentence": "Jeneral Putera Naruhiko Higashikuni, 東久邇宮稔彦王, Higashikuni-no-miya Naruhiko Ō, 3 Disember 1887 – 20 Januari 1990ialah seorang putera Empayar Jepun yang berkhidmat sebagai seorang pegawai dalam Tentera Darat Imperial Jepun dan ke-43 Perdana Menteri Jepun dari 17 Ogos 1945 sehinggalah 9 oktober pada tahun yang sama dengan tempoh selama 54 hari.Ayahanda ipar Maharaja Hirohitoini merupakan Higashikuni adalah satu-satunya ahli kerabat diraja Jepun yang pernah mengetuai kabinet serta jeneral pegawai Tentera Darat Jepun terkabir yang memegang jawatan Perdana Menteri.",
+            "alia": "東久邇宮稔彦王",
+            "value": "Putera Naruhiko Higashikuni",
+            "field": "Name",
+            "alia_score": 0.8333333333333334,
             "value_score": 1.0,
-            "sentence_score": 0.986335403726708,
-            "match_alia": " Sobral",
-            "match_value": "Salvador Vilar Braamcamp Sobral"
+            "sentence_score": 0.9928698752228164,
+            "match_alia": "東久邇宮稔",
+            "match_value": "Putera Naruhiko Higashikuni"
          }
       ],
-      "Occupation": [
+      "Honorific Prefix": [
          {
-            "sentence": "Salvador Vilar Braamcamp Sobral Ordem do Mérito (Portugal) [|saɫvɐˈðoɾ viˈlaɾ bɾɐ̃ˈkɐ̃p suˈβɾaɫ], lahir 28 Disember 1989) ialah seorang penyanyi lelaki Portugal.",
-            "alia": "Salvador Sobral",
-            "value": "Penyanyi",
-            "field": "Occupation",
-            "alia_score": 0.6956521739130435,
-            "value_score": 0.875,
-            "sentence_score": 0.9442622950819672,
-            "match_alia": "Salvador",
-            "match_value": "penyanyi"
+            "sentence": "Jeneral Putera Naruhiko Higashikuni, 東久邇宮稔彦王, Higashikuni-no-miya Naruhiko Ō, 3 Disember 1887 – 20 Januari 1990",
+            "alia": "Putera Naruhiko Higashikuni",
+            "value": "Jeneral",
+            "field": "Honorific Prefix",
+            "alia_score": 1.0,
+            "value_score": 1.0,
+            "sentence_score": 1.0,
+            "match_alia": "Putera Naruhiko Higashikuni",
+            "match_value": "Jeneral"
+         }
+      ],
+      "Rank": [
+         {
+            "sentence": "Jeneral Putera Naruhiko Higashikuni, 東久邇宮稔彦王, Higashikuni-no-miya Naruhiko Ō, 3 Disember 1887 – 20 Januari 1990",
+            "alia": "Putera Naruhiko Higashikuni",
+            "value": "Jeneral",
+            "field": "Rank",
+            "alia_score": 1.0,
+            "value_score": 1.0,
+            "sentence_score": 1.0,
+            "match_alia": "Putera Naruhiko Higashikuni",
+            "match_value": "Jeneral"
          }
       ]
    }
@@ -488,7 +613,7 @@ print('------all word match------\n', json.dumps(all_word_corpus.corpus(), ensur
 - all word match
 ```json
 {
-   "title": "Salvador Sobral",
+   "title": "Putera Naruhiko Higashikuni",
    "sentences": {}
 } 
 ```
@@ -508,3 +633,4 @@ print('------all word match------\n', json.dumps(all_word_corpus.corpus(), ensur
         - top_k：获取阈值前k的句子
         - ignore_space：相似度匹配时是否忽略空格
         - choice：全词匹配时每个词的相似项的数目
+        - rjson：返回JSON格式的数据

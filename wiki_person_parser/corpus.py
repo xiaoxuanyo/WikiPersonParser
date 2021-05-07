@@ -10,6 +10,7 @@ import jieba
 import math
 import itertools
 import random
+import json
 
 
 class NoItemException(Exception):
@@ -81,6 +82,10 @@ class Corpus:
         return self._item
 
     @property
+    def json_item(self):
+        return json.dumps(self._item, ensure_ascii=False, indent=3)
+
+    @property
     @_raise_no_item_exception
     def title(self):
         return self._title
@@ -94,6 +99,11 @@ class Corpus:
     @_raise_no_item_exception
     def fields(self):
         return self._fields
+
+    @property
+    @_raise_no_item_exception
+    def json_fields(self):
+        return json.dumps(self._fields, ensure_ascii=False, indent=3)
 
     @property
     @_raise_no_item_exception
@@ -143,6 +153,11 @@ class Corpus:
             else:
                 _entities[key] = value['values']
         return _entities
+
+    @property
+    @_raise_no_item_exception
+    def json_entities(self):
+        return json.dumps(self.entities, ensure_ascii=False, indent=3)
 
     @property
     @_raise_no_item_exception
@@ -210,7 +225,7 @@ class Corpus:
         return ''
 
     @_raise_no_item_exception
-    def corpus(self, top_k=1, ignore_space=True, choice=10):
+    def corpus(self, top_k=1, ignore_space=True, choice=10, rjson=True):
         match_func = self._get_match_word if self.match_type == 'all word' else self._get_match_char
         _corpus = {'title': self._title,
                    'sentences': []}
@@ -222,18 +237,20 @@ class Corpus:
             for inner_value in value:
                 for sentence in self.paragraphs:
                     field_pattern = rf"({'|'.join(match_func(inner_value, ignore_space, choice=choice))})"
-                    pattern = rf"{alia_pattern}.*?{field_pattern}|{field_pattern}.*?{alia_pattern}"
+                    pattern = rf".*{alia_pattern}.*?{field_pattern}|{field_pattern}.*?{alia_pattern}.*"
                     result = re.search(pattern, sentence, flags=re.I)
                     if result:
-                        score = SequenceMatcher(lambda x: x == ' ', sentence, result.group(0)).quick_ratio()
+                        score = SequenceMatcher(lambda x: x == ' ', sentence.lower(),
+                                                result.group(0).lower()).quick_ratio()
                         if score >= self.sentence_thr:
                             alia = result.group(1) if result.group(1) else result.group(4)
                             alia = alia if alia else ''
                             field = result.group(2) if result.group(2) else result.group(3)
                             field = field if field else ''
                             _alia = self._get_alia_value(alia)
-                            score1 = SequenceMatcher(lambda x: x == ' ', alia, _alia).quick_ratio()
-                            score2 = SequenceMatcher(lambda x: x == ' ', field, inner_value).quick_ratio()
+                            score1 = SequenceMatcher(lambda x: x == ' ', alia.lower(), _alia.lower()).quick_ratio()
+                            score2 = SequenceMatcher(lambda x: x == ' ', field.lower(),
+                                                     inner_value.lower()).quick_ratio()
                             if score1 >= self.field_thr and score2 >= self.field_thr:
                                 _corpus['sentences'].append(
                                     {'sentence': sentence,
@@ -252,32 +269,6 @@ class Corpus:
         sort_sent = {k: sorted(v, key=lambda dic: dic['sentence_score'], reverse=True)[:top_k] for k, v in
                      sort_sent.items() if v}
         _corpus['sentences'] = sort_sent
+        if rjson:
+            return json.dumps(_corpus, ensure_ascii=False, indent=3)
         return _corpus
-
-
-if __name__ == '__main__':
-    import json
-    from wiki_person_parser.parser import Parser
-
-    with open('./ms_person_data.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    corpus = Corpus(max_paragraph_length=3, field_thr=0.8, sentence_thr=0.8, match_ratio=0.8)
-    w_corpus = Corpus(max_paragraph_length=3, field_thr=0.7, sentence_thr=0.7, match_ratio=0.6, match_type='all word')
-    ww_corpus = Corpus(max_paragraph_length=3, field_thr=0.6, sentence_thr=0.7, match_ratio=0.6, match_type='part word')
-
-    for values in data.values():
-        res = Parser.parse_wiki_data(values['all text'], entry=values['title'])
-        corpus.set_item(res)
-        w_corpus.set_item(res)
-        ww_corpus.set_item(res)
-        print('------fields------\n', corpus.entities, '\n------end------\n')
-        print('------char match------\n', corpus.corpus(), '\n------end------\n')
-        print('------part word match------\n', ww_corpus.corpus(), '\n------end------\n')
-        print('------all word match------\n', w_corpus.corpus(), '\n------end------\n\n\n')
-
-    # idx = '934538'
-    # res = Parser.parse_wiki_data(data[idx]['all text'], entry=data[idx]['title'])
-    # corpus.set_item(res)
-    # w_corpus.set_item(res)
-    # print(corpus.corpus())
-    # print(w_corpus.corpus())

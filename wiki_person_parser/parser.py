@@ -158,11 +158,12 @@ class Parser(InfoField):
         return QueryEngine(code, https_proxy)
 
     @classmethod
-    def parse_wiki_data(cls, data, force=True, entry=None):
+    def parse_wiki_data(cls, data, force=True, entry=None, rjson=False):
         """
         :param data: 必须是符合wiki语法格式的字符串
         :param force:
         :param entry:
+        :param rjson:
         :return:
         """
         _props = []
@@ -215,10 +216,13 @@ class Parser(InfoField):
             fields['primary_entity_props'] = {'multi_values_field': '\n'.join(_props)}
         if not fields['template_name']:
             fields.pop('template_name')
-        return fields
+        if not rjson:
+            return fields
+        return json.dumps(fields, ensure_ascii=False, indent=3)
 
     @classmethod
-    def parse_wiki_title(cls, title, code, https_proxy=None, force=True, get_redirect=False, page_info=False):
+    def parse_wiki_title(cls, title, code, https_proxy=None, force=True, get_redirect=False, page_info=False,
+                         rjson=False):
         """
         :param title: 条目
         :param code:
@@ -226,8 +230,9 @@ class Parser(InfoField):
         :param force:
         :param get_redirect:
         :param page_info:
+        :param rjson:
         :return:
         """
         query = cls._init(code, https_proxy)
         data = query.get_wiki_page(title, get_redirect=get_redirect, force=page_info)
-        return cls.parse_wiki_data(data, force, title)
+        return cls.parse_wiki_data(data, force, title, rjson=rjson)
