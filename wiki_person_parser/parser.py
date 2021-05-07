@@ -107,9 +107,10 @@ class WikiContentHandler(xml.sax.handler.ContentHandler, InfoField):
 
 class XMLParser:
 
-    def __init__(self, filter_categories=None, category=None, code='ms', skip_num=None,
+    def __init__(self, handler=None, filter_categories=None, category=None, code='ms', skip_num=None,
                  category_wiki_type=['wikilinks']):
-        self.handler = WikiContentHandler(filter_categories, category, code, skip_num, category_wiki_type)
+        self.handler = WikiContentHandler(filter_categories, category, code, skip_num,
+                                          category_wiki_type) if handler is None else handler
         self.parser = xml.sax.make_parser()
         self.parser.setFeature(xml.sax.handler.feature_namespaces, 0)
         self.parser.setContentHandler(self.handler)

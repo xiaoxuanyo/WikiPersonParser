@@ -11,8 +11,9 @@ from wiki_person_parser.base import (TemplateBase, TemplateOfficer, TemplatePerf
                                      TemplateSportsPlayer, re_compile, QueryEngine)
 from wiki_person_parser.utils import LoggerUtil
 from wiki_person_parser.templates import TemplateDefine, TemplatePerson
+from wiki_person_parser.corpus import Corpus
 
 __all__ = ['Parser', 'InfoField', 'WikiContentHandler',
            'XMLParser', 'TemplateBase', 'TemplateOfficer', 'TemplatePerformanceWorker',
            'TemplateResearchers', 'TemplateSportsPlayer', 'LoggerUtil',
-           'TemplateDefine', 'TemplatePerson', 're_compile', 'QueryEngine']
+           'TemplateDefine', 'TemplatePerson', 're_compile', 'QueryEngine', 'Corpus']
