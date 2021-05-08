@@ -252,13 +252,14 @@ class TemplateBase:
     # 解析wiki对象tag时需要剔除的标签，这些值往往无意义
     discard_tag_name = (['ref', 'table'],)
     # 对于自定义的所有字段，需要剔除的值，这些值往往无意义
-    discard_fields_value = (re.compile(r'nama.*?amerika|nama.*?korea'),)
+    discard_fields_value = (re.compile(r'nama.*?amerika|nama.*?korea|\.svg$|\.png$|\.jpg$|\.jpeg$'),)
     # 解析wiki对象text时需要剔除的值
     discard_text_value = (re.compile(r'wikitable'),)
     # 对于自定义的所有字段，需要替换为空字符串的无意义的值
     replace_fields_value = re.compile(r'<.*?small.*?>|<.*?big.*?>|<.*?span.*?>|<.*?nowiki.*?>|<.*?div.*?>', re.I)
     # 解析wiki对象text需要替换的值
-    replace_text_value = replace_fields_value
+    replace_text_value = re.compile(
+        r'<.*?small.*?>|<.*?big.*?>|<.*?span.*?>|<.*?nowiki.*?>|<.*?div.*?>|\.svg$|\.png$|\.jpg$|\.jpeg$', re.I)
 
     def __init__(self, values, entry):
         """
