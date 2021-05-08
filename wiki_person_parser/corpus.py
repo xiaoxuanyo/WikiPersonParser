@@ -136,20 +136,14 @@ class Corpus:
         for key, value in self._fields.items():
             if key in multi_filed_keys.keys():
                 for inner_value in value['values']:
-                    try:
-                        inner_value = re.sub(multi_filed_keys[key], r'\n\n\n\n\n\1', inner_value)
-                        inner_res = inner_value.split('\n\n\n\n\n')
-                        for inner in inner_res:
-                            temp = inner.split(':')
-                            ll = _entities.get(f'{key}({temp[0].strip()})', [])
-                            if temp[1].strip() not in ll:
-                                ll.append(temp[1].strip())
-                            _entities[f'{key}({temp[0].strip()})'] = ll
-                    except IndexError:
-                        ll = _entities.get(f'{key}({key.lower()})', [])
-                        if inner_value not in ll:
-                            ll.append(inner_value)
-                        _entities[f'{key}({key.lower()})'] = ll
+                    inner_value = re.sub(multi_filed_keys[key], r'\n\n\n\n\n\1', inner_value)
+                    inner_res = inner_value.split('\n\n\n\n\n')
+                    for inner in inner_res:
+                        temp = inner.split(':')
+                        ll = _entities.get(f'{key}({temp[0].strip()})', [])
+                        if temp[1].strip() not in ll:
+                            ll.append(temp[1].strip())
+                        _entities[f'{key}({temp[0].strip()})'] = ll
             else:
                 _entities[key] = value['values']
         return _entities

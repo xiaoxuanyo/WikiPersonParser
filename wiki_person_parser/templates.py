@@ -6,6 +6,7 @@
 @email  : xiaoxuanemail@163.com
 """
 
+import re
 from wiki_person_parser.base import (re_compile, TemplateBase, TemplateOfficer, TemplateResearchers,
                                      TemplatePerformanceWorker, TemplateSportsPlayer)
 
@@ -776,6 +777,27 @@ _TEMPLATE_MAP = {
 }
 
 
+def _check_multi_fields(props, self_fields):
+    key2re_dict = {}
+    for key in props:
+        multi_field = key.split(':')
+        _set = key2re_dict.get(multi_field[0], set())
+        _value = re.sub(r'[()_]', '', multi_field[1].strip().lower())
+        for i_k in _value.split(','):
+            if i_k:
+                _set.add(i_k.strip())
+        key2re_dict[multi_field[0]] = _set
+    for key, value in self_fields['fields'].items():
+        if key in key2re_dict.keys():
+            _fields_value = set()
+            for i_v in value['values']:
+                if not re.search(rf"{'|'.join(key2re_dict[key])}:", i_v):
+                    _fields_value.add(f"{key.lower()}:{i_v}")
+                else:
+                    _fields_value.add(i_v)
+            self_fields['fields'][key]['values'] = list(_fields_value)
+
+
 class TemplateDefine:
     template_name = 'Define'
 
@@ -803,6 +825,7 @@ class TemplateDefine:
                         _props.append(i_s)
         if _props:
             self._fields['primary_entity_props'] = {'multi_values_field': '\n'.join(_props)}
+            _check_multi_fields(_props, self._fields)
 
     @property
     def fields(self):

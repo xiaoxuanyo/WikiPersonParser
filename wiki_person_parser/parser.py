@@ -12,7 +12,7 @@ import xml.sax
 import io
 import re
 from wiki_person_parser.base import TemplateBase, QueryEngine
-from wiki_person_parser.templates import TemplatePerson, TEMPLATE_MAP
+from wiki_person_parser.templates import TemplatePerson, TEMPLATE_MAP, _check_multi_fields
 import mwparserfromhell as mwp
 
 
@@ -163,10 +163,8 @@ class Parser(InfoField):
         :param data: 必须是符合wiki语法格式的字符串
         :param force:
         :param entry:
-        :param rjson:
         :return:
         """
-        _props = []
         fields = {'template_name': [],
                   'entry': entry}
         default_temp = cls.default_template if force else cls.base_template
@@ -182,6 +180,7 @@ class Parser(InfoField):
             fields['info_text'] = info_text
         temp = data.filter_templates(matches=cls.info_field)
         if temp:
+            _props = []
             tem = temp.pop(0)
             values = {str(p.name).strip(): str(p.value) for p in tem.params if str(p.value)}
             template = cls.map_template.get(
@@ -212,17 +211,17 @@ class Parser(InfoField):
                     for i_s in res.fields['primary_entity_props']['multi_values_field'].split('\n'):
                         if i_s not in _props:
                             _props.append(i_s)
-        if _props:
-            fields['primary_entity_props'] = {'multi_values_field': '\n'.join(_props)}
+            if _props:
+                fields['primary_entity_props'] = {'multi_values_field': '\n'.join(_props)}
+                _check_multi_fields(_props, fields)
         if not fields['template_name']:
             fields.pop('template_name')
-        if not rjson:
-            return fields
-        return json.dumps(fields, ensure_ascii=False, indent=3)
+        if rjson:
+            return json.dumps(fields, ensure_ascii=False, indent=3)
+        return fields
 
     @classmethod
-    def parse_wiki_title(cls, title, code, https_proxy=None, force=True, get_redirect=False, page_info=False,
-                         rjson=False):
+    def parse_wiki_title(cls, title, code, https_proxy=None, force=True, get_redirect=False, page_info=False, rjson=False):
         """
         :param title: 条目
         :param code:
@@ -230,7 +229,6 @@ class Parser(InfoField):
         :param force:
         :param get_redirect:
         :param page_info:
-        :param rjson:
         :return:
         """
         query = cls._init(code, https_proxy)
