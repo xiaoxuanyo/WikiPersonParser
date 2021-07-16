@@ -261,6 +261,8 @@ class TemplateBase:
     replace_text_value = re.compile(
         r'<.*?small.*?>|<.*?big.*?>|<.*?span.*?>|<.*?nowiki.*?>|<.*?div.*?>|\.svg$|\.png$|\.jpg$|\.jpeg$', re.I)
 
+    retain_field_name = None
+
     def __init__(self, values, entry):
         """
         :param values: 待解析的字典数据
@@ -300,11 +302,14 @@ class TemplateBase:
                     break
             if field:
                 # 对wiki对象递归解析
+                _field_tag = _matches(k.lower().strip(), self.retain_field_name)[0]
                 p_v = self.parse(v.strip())
                 h_v = ''.join([str(i) for i in p_v]).strip()
                 if h_v:
                     _console_log.logger.debug(f'\n{field}: {h_v}\n')
                     if index:
+                        if _field_tag:
+                            h_v = f'{k}: {h_v}'
                         h_v = {index: h_v}
                         if h_v not in self._fields['fields'][field]['values'] and not \
                                 _matches(str(h_v).lower(), self.discard_fields_value)[0]:
@@ -314,6 +319,8 @@ class TemplateBase:
                         l_h_v = h_v.split('\n')
                         for h_v in l_h_v:
                             h_v = h_v.strip()
+                            if _field_tag:
+                                h_v = f'{k}: {h_v}'
                             if h_v and h_v not in self._fields['fields'][field]['values'] and not \
                                     _matches(str(h_v).lower(), self.discard_fields_value)[0]:
                                 h_v = re.sub(self.replace_fields_value, '', h_v)
